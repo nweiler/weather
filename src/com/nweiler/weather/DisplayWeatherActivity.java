@@ -1,31 +1,39 @@
 package com.nweiler.weather;
 
+import java.io.IOException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.support.v4.app.NavUtils;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 
-public class DisplayMessageActivity extends Activity {
+public class DisplayWeatherActivity extends Activity {
 
+	private String weatherString;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_display_message);
-		// Show the Up button in the action bar.
-		setupActionBar();
-	}
+		
+		Intent intent = getIntent();
+		String message = getWeather();
 
-	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+		TextView textView = new TextView(this);
+		textView.setTextSize(40);
+		textView.setText(message);
+		
+		setContentView(textView);
 	}
 
 	@Override
@@ -50,6 +58,19 @@ public class DisplayMessageActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public String getWeather() {
+		HttpClient httpClient = new DefaultHttpClient();
+		try {
+			HttpResponse response = httpClient.execute(new HttpGet("http://api.openweathermap.org/data/2.5/weather?q=London,uk"));
+			return response.toString();
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 }
